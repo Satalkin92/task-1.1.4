@@ -15,18 +15,20 @@ public class UserDaoJDBCImpl implements UserDao {
     Connection connection = Util.getConnect();
 
     public void createUsersTable() {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE users (" +
+        try (PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (" +
                 " ID INT PRIMARY KEY AUTO_INCREMENT," +
                 "name VARCHAR(15), last_name VARCHAR(15), age INT);")) {
             preparedStatement.executeUpdate();
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     public void dropUsersTable() {
-        try (PreparedStatement prepareStatement = connection.prepareStatement("DROP TABLE users ")) {
+        try (PreparedStatement prepareStatement = connection.prepareStatement("DROP TABLE IF EXISTS users ")) {
             prepareStatement.executeUpdate();
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -54,8 +56,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(("SELECT * FROM users"));
+        try (PreparedStatement prepareStatement = connection.prepareStatement("SELECT * FROM users")) {
+            ResultSet resultSet = prepareStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User();
                 user.setId(resultSet.getLong("id"));
